@@ -1,4 +1,4 @@
-from flask import Flask, url_for
+from flask import Flask, url_for, request, redirect
 from flask import render_template
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
@@ -18,22 +18,46 @@ class Todo(db.Model):
         return '<Task %r>' % self.id
 
 
-@app.route('/') # url for my app
+@app.route('/', methods=['POST', 'GET']) # url for my app
 def index():
-    return render_template('index.html')
+    if request.method == 'POST':
+        task_content = request.form['content']
+        new_task = Todo(content=task_content)
+        try:
+            db.session.add(new_task)
+            db.session.commit()
+            return redirect('/')
+        except:
+            return 'There was an issue adding your task'
+    else:
+        tasks = Todo.query.order_by(Todo.date_created).all() # query all tasks and order them by date
+        return render_template('index2.html', tasks=tasks)
+
+
+@app.route('/delete/<int:id>')
+def delete(id):
+    task_to_del = Todo.query.get_or_404(id)
+    try:
+        db.session.delete(task_to_del)
+        db.session.commit()
+        return redirect('/')
+    except:
+        return 'There was a problem with deleting this task'
+
+@app.route('/update/<int:id>', methods=['GET','POST'])
+def update(id):
+    task = Todo.query.get_or_404(id)
+    if request.method == 'POST':
+        task.content = request.form['content'] # setting the current text content to the input box
+        try:
+            db.session.commit()
+            return redirect('/')
+        except:
+            return "Couldn't update your task"
+    else:
+        return render_template('update2.html', task=task)
 
 if __name__=="__main__":
     app.run(debug=True)
 
 
-    """
-    <div class="content">
-    <h1>Task Manager</h1>
-    <table>
-        <tr>
-            <th>Task</th>
-            <th>Added</th>
-            <th>Actions</th>
-        </tr>
-    </table>
-</div>"""
