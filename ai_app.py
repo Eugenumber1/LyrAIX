@@ -16,38 +16,79 @@ db = SQLAlchemy(app)
 
 
 class Song(db.Model):
-    id = db.Column(db.Integer, primary_key=True, unique=True)
-    artist = db.Column(db.String(200), nullable=False)
-    lyrics = db.Column(db.String(), nullable=False, unique=True)
-    date_created = db.Column(db.DateTime, default=datetime.utcnow)
+
+    __tablename__ = "Songs"
+
+    id = db.Column("user id", db.Integer, primary_key=True, unique=True)
+    artist = db.Column("artist name", db.String(200), nullable=False)
+    lyrics = db.Column("lyrics of the song", db.String(), nullable=False, unique=True)
+    date_created = db.Column("date created", db.DateTime, default=datetime.utcnow)
+
+    def __init__(self, artist, lyrics):
+        self.artist = artist
+        self.lyrics = lyrics
 
     def __repr__(self):
-        return '<Song %r>' % self.id
+        return  f" song id - {id} "
 
-print(Song.lyrics)
+
 
 
 
 @app.route('/', methods=['POST', 'GET']) # url for my app
-def index():
-    if request.method == 'POST':
-        artist_name = request.form['artist-search']
-        artist = genius.search_artist(artist_name, max_songs=3, sort="title", include_features=True)
-        for song in artist.songs:
-            new_song = Song(artist=artist_name, lyrics=song.lyrics)
-            print(new_song.artist)
-            try:
-                db.session.add(new_song)
-            except:
-                return 'There was an issue with adding the song'
-        db.session.commit()
-        return redirect('/')
+def home():
+    return render_template("home.html")
+
+
+
+
+@app.route('/search_artist', methods=["POST", "GET"])
+def search_artist():
+    if request.method =="POST":
+        artist = request.form['artist-search']
+        songs = Song.query.all()
+        artists = set()
+        for song in songs:
+            artists.add(song.artist)
+            print(song.artist)
+        if artist in artists:
+            return render_template('artist_exists.html')
+        elif artist not in artists:
+            return render_template()
+
 
     else:
-        songs = Song.query.order_by(Song.date_created).all() # query all tasks and order them by date
-        return render_template('home.html', songs=songs)
+        return render_template('search_artist.html')
+
+
+
+
+
 
 
 
 if __name__=="__main__":
     app.run(debug=True)
+
+
+"""
+    if request.method == 'POST':
+        artist_name = request.form['artist-search']
+        for i in Song.query.filter(Song.artist == artist_name):
+            print(i)
+        if artist_name not in Song.query.filter(Song.artist == artist_name):
+            artist = genius.search_artist(artist_name, max_songs=3, sort="title", include_features=True)
+            for song in artist.songs:
+                new_song = Song(artist=artist_name, lyrics=song.lyrics)
+                print(new_song.artist)
+                try:
+                    db.session.add(new_song)
+                except:
+                    return 'There was an issue with adding the song'
+            db.session.commit()
+            return redirect('/')
+
+    else:
+        songs = Song.query.order_by(Song.lyrics).all() # query all songs
+        return render_template('home.html', songs=songs)
+"""
