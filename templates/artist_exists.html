@@ -12,7 +12,7 @@
       <h2>Congrats! your artist is already in our database!</h2>
       <p>Our original AI mechanism will recreate the lyrics of any author. Just press the button!</p>
     </div>
-    <form action="/" method="POST">
+    <form action="/artist" method="POST">
         <input type="text" name="artist-search" id="artist-search">
         <input type="submit" value="Search Artist">
     </form>
@@ -20,3 +20,11 @@
 </div>
 
 {% endblock %}
+
+{% for song in songs %}
+        <tr>
+            <td>{{ song.artist }}</td>
+            <td>{{ song.lyrics }}</td>
+            <td>{{ song.date_created.date() }}</td>
+        </tr>
+        {% endfor %}

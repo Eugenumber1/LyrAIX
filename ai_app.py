@@ -2,10 +2,14 @@ from flask import Flask, url_for, request, redirect
 from flask import render_template
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+from flask_wtf import FlaskForm
+from wtforms import StringField, SubmitField
 from helpers import webScraper
-
 import lyricsgenius
 import pandas as pd
+
+# ------------ ATOMIC VARS ---------------
+
 TOKEN = 'H89D3eV0IYOWGptlLMG4RFuTbmjPPSl6XwJ756OLd2tS56A3nbc17bwOIWcixQkK'
 
 genius = lyricsgenius.Genius(TOKEN)
@@ -13,7 +17,15 @@ genius = lyricsgenius.Genius(TOKEN)
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test2.db'
 db = SQLAlchemy(app)
+#app.config["SECRET_KEY"] = "mysecret"
 
+# -----------FORM class -------------
+
+class CommentForm(FlaskForm):
+  artist = StringField("Artist Name")
+  submit = SubmitField("Search for Artist")
+
+# ------------- DATABASE CLASS --------------
 
 class Song(db.Model):
 
@@ -31,15 +43,11 @@ class Song(db.Model):
     def __repr__(self):
         return  f" song id - {id} "
 
-
-
-
+# --------------- API -------------------
 
 @app.route('/', methods=['POST', 'GET']) # url for my app
 def home():
     return render_template("home.html")
-
-
 
 
 @app.route('/search_artist', methods=["POST", "GET"])
@@ -52,13 +60,24 @@ def search_artist():
             artists.add(song.artist)
             print(song.artist)
         if artist in artists:
-            return render_template('artist_exists.html')
+            return redirect(url_for("artist", artist_name=artist, _external=True, _scheme="https"))
         elif artist not in artists:
-            return render_template()
-
-
+            return redirect(url_for("scrape_artist", artist_name=artist, _external=True, _scheme="https"))
     else:
         return render_template('search_artist.html')
+
+
+
+@app.route("/artist/<artist_name>", methods=["POST", "GET"])
+def artist(artist_name):
+    songs = Song.query.get_or_404(artist_name)
+    if request.method =="POST":
+        pass
+    else:
+        render_template("artist.html", artist=artist_name, songs=songs)
+
+
+
 
 
 
