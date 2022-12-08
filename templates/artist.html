@@ -14,21 +14,27 @@
       will do the rest</p>
     </div>
     <div class="topnav">
-        <a href="#">Home</a>
+        <a href="/">Home</a>
         <a href="/search_artist">Search</a>
         <a href="/create_lyrics">Create</a>
-        <a href="about">About</a>
+        <a href="/about">About</a>
     </div>
     <div>
         <table>
         <tr>
             <th>Artist</th>
             <th>Song</th>
-            <th>Date added</th>
+            <th>Lyrics</th>
         </tr>
+        {% for song in songs %}
+            <tr>
+                <th>{{ song.artist }}</th>
+                <th>{{ song.song_name }}</th>
+                <th>{{ song.song_text }}</th>
+            </tr>
 
-    </table>
+        {% endfor %}
+        </table>
     </div>
 </div>
-
 {% endblock %}
