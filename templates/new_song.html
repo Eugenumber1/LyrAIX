@@ -8,18 +8,15 @@
 {% block body %}
 <div class="content">
     <h1>LyrAIX</h1>
-    <div>
-      <p>Our original AI mechanism will reproduce the lyrics of any author. Just tell us the name and we
-      will do the rest</p>
-    </div>
     <div class="topnav">
         <a href="#">Home</a>
         <a href="/search_artist">Search</a>
         <a href="/create_lyrics">Create</a>
         <a href="/about">About</a>
     </div>
+  <h1> See the new song made by {{artist}} </h1>
 
-    <button type="button"><a href="/search_artist"> Try It! </a></button>
+  <p> {{ new_song }} </p>
 
 
 

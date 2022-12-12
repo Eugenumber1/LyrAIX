@@ -7,6 +7,7 @@ from wtforms import StringField, SubmitField
 from helpers import webScraper
 import lyricsgenius
 import pandas as pd
+from helpers.NeuralNetwork import SongCreator
 
 # from models import *
 # from table import *
@@ -80,19 +81,40 @@ def search_artist():
 
 @app.route("/artist/<string:artist_name>", methods=["POST", "GET"])
 def artist(artist_name=None):
-    print(artist_name)
+    # print(artist_name)
     songs = Song.query.filter_by(artist = artist_name).all() # Book.query.filter(Book.year = 2020).all()
-    print(len(songs))
+    total = 0
+    number = len(songs)
     for song in songs:
-        print(song.song_id)
+        total += len(song.song_text)
+    avarage = total // number
+    print(avarage)
+    # print(len(songs))
+    # for song in songs:
+    #     print(song.song_id)
     if request.method == "POST":
-        pass
+        sc = SongCreator(songs, avarage)
+        #new_song_name = sc.generate_title()
+        new_song = sc.generate_song()
+        song_to_add = Song(artist=artist_name, song_text=new_song)
+        try:
+            db.session.add(song_to_add)
+        except:
+            return "There was an issue with adding newly generated song"
+        db.session.commit()
+        song_id = song_to_add.song_id
+        print(song_id)
+
+        return redirect(url_for("generate", artist_name=artist, new_song_id=song_id, _external=True, _scheme="http"))
     else:
         return render_template("artist.html", artist=artist_name, songs=songs)
 
 
 
-
+@app.route("/artist/<string:artist_name>/<int:new_song_id>")
+def generate(artist_name, new_song_id):
+   song = Song.query.get_or_404(new_song_id)
+   return render_template("new_song.html", artist=artist_name, new_song=song.song_text)
 
 
 # @app.route("/scrape/<artist_name>", methods=["POST", "GET"])
@@ -112,24 +134,4 @@ def artist(artist_name=None):
 if __name__ == "__main__":
     app.run(debug=True)
 
-"""
-    if request.method == 'POST':
-        artist_name = request.form['artist-search']
-        for i in Song.query.filter(Song.artist == artist_name):
-            print(i)
-        if artist_name not in Song.query.filter(Song.artist == artist_name):
-            artist = genius.search_artist(artist_name, max_songs=3, sort="title", include_features=True)
-            for song in artist.songs:
-                new_song = Song(artist=artist_name, lyrics=song.lyrics)
-                print(new_song.artist)
-                try:
-                    db.session.add(new_song)
-                except:
-                    return 'There was an issue with adding the song'
-            db.session.commit()
-            return redirect('/')
 
-    else:
-        songs = Song.query.order_by(Song.lyrics).all() # query all songs
-        return render_template('home.html', songs=songs)
-"""
