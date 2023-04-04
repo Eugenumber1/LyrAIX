@@ -1,6 +1,7 @@
 import tensorflow as tf
 import pandas as pd
 import numpy as np
+from tqdm import tqdm
 
 
 class SongCreator:
@@ -92,13 +93,13 @@ class SongCreator:
 
     def create_model(self, dataset, max_id):
         model = tf.keras.models.Sequential([
-            tf.keras.layers.GRU(128, return_sequences=True, input_shape=[None, max_id], dropout=0.2, recurrent_dropout=0.2),
-            tf.keras.layers.GRU(128, return_sequences=True, dropout=0.2, recurrent_dropout=0.2),
+            tf.keras.layers.GRU(64, return_sequences=True, input_shape=[None, max_id], dropout=0.2, recurrent_dropout=0.2),
+            tf.keras.layers.GRU(16, return_sequences=True, dropout=0.2, recurrent_dropout=0.2),
             tf.keras.layers.TimeDistributed(tf.keras.layers.Dense(max_id, activation="softmax"))])
         model.compile(loss="sparse_categorical_crossentropy", optimizer="adam", run_eagerly=True, metrics=['accuracy'])
         # for i in dataset:
         #     print(i)
-        history = model.fit(dataset, epochs=25)
+        history = model.fit(dataset, epochs=15)
         print(history)
         return model
 

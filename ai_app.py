@@ -64,7 +64,7 @@ def search_artist():
         if artist in artists:
             return redirect(url_for("artist", artist_name=artist, _external=True, _scheme="http"))
         elif artist not in artists:
-            artist_found = genius.search_artist(artist, max_songs=500, sort="title", include_features=True)
+            artist_found = genius.search_artist(artist, max_songs=10, sort="title", include_features=True)
             for song in artist_found.songs:
                 if song.lyrics != "" and song.title != "":
                     try:
