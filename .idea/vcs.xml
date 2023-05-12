@@ -2,5 +2,7 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/Thesis/deep-rhyme-detection" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/Thesis/deep-rhyme-detection/deep-rhyme-detection" vcs="Git" />
   </component>
 </project>
